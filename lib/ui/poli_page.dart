@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:tugas/ui/poli_form.dart';
 import '../model/poli.dart';
+import '../service/poli_service.dart';
 import 'poli_detail.dart';
+import 'poli_form.dart';
 import 'poli_item.dart';
+import '../widget/sidebar.dart';
 
 class PoliPage extends StatefulWidget {
-  const PoliPage({super.key});
-
+  const PoliPage({Key? key}) : super(key: key);
   @override
-  State<PoliPage> createState() => _PoliPageState();
+  _PoliPageState createState() => _PoliPageState();
 }
 
 class _PoliPageState extends State<PoliPage> {
+  Stream<List<Poli>> getList() async* {
+    List<Poli> data = await PoliService().listData();
+    yield data;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const Sidebar(),
       appBar: AppBar(
         title: const Text("Data Poli"),
         actions: [
@@ -27,38 +34,29 @@ class _PoliPageState extends State<PoliPage> {
           )
         ],
       ),
-      body: ListView(
-        children: [
-          GestureDetector(
-            child: const Card(
-              child: ListTile(
-                title: Text("Poli Anak"),
-              ),
-            ),
-            onTap: () {
-              Poli poliAnak = Poli(namaPoli: 'Poli Anak');
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => PoliDetail(poli: poliAnak)));
+      body: StreamBuilder(
+        stream: getList(),
+        builder: (context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return Text(snapshot.error.toString());
+          }
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (!snapshot.hasData &&
+              snapshot.connectionState == ConnectionState.done) {
+            return const Text('Data Kosong');
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data.length,
+            itemBuilder: (context, index) {
+              return PoliItem(poli: snapshot.data[index]);
             },
-          ),
-          const Card(
-            child: ListTile(
-              title: Text("Poli Kandungan"),
-            ),
-          ),
-          const Card(
-            child: ListTile(
-              title: Text("Poli Gigi"),
-            ),
-          ),
-          const Card(
-            child: ListTile(
-              title: Text("Poli THT"),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
