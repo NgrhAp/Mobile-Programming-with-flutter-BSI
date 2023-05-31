@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
-import '../service/poli_service.dart';
-import 'poli_page.dart';
-import 'poli_update_form.dart';
-import '../model/poli.dart';
+import '../../service/pegawai_service.dart';
+import 'pegawai_page.dart';
+import 'pegawai_update_form.dart';
+import '../../model/pegawai.dart';
 
-class PoliDetail extends StatefulWidget {
-  final Poli poli;
+class PegawaiDetail extends StatefulWidget {
+  final Pegawai pegawai;
 
-  const PoliDetail({Key? key, required this.poli}) : super(key: key);
-  _PoliDetailState createState() => _PoliDetailState();
+  const PegawaiDetail({Key? key, required this.pegawai}) : super(key: key);
+  _PegawaiDetailState createState() => _PegawaiDetailState();
 }
 
-class _PoliDetailState extends State<PoliDetail> {
-  Stream<Poli> getData() async* {
-    Poli data = await PoliService().getById(widget.poli.id.toString());
+class _PegawaiDetailState extends State<PegawaiDetail> {
+  Stream<Pegawai> getData() async* {
+    Pegawai data = await PegawaiService().getById(
+      widget.pegawai.id.toString(),
+    );
     yield data;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Detail Poli")),
+      appBar: AppBar(title: const Text("Detail Pegawai")),
       body: StreamBuilder(
         stream: getData(),
         builder: (context, AsyncSnapshot snapshot) {
@@ -40,7 +42,7 @@ class _PoliDetailState extends State<PoliDetail> {
             children: [
               const SizedBox(height: 20),
               Text(
-                "Nama Poli : ${snapshot.data.namaPoli}",
+                "Nama Pegawai : ${snapshot.data.namaPegawai}",
                 style: const TextStyle(fontSize: 20),
               ),
               const SizedBox(height: 20),
@@ -64,7 +66,7 @@ class _PoliDetailState extends State<PoliDetail> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          PoliUpdateForm(poli: snapshot.data)));
+                          PegawaiUpdateForm(pegawai: snapshot.data)));
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             child: const Text("Ubah")));
@@ -80,17 +82,18 @@ class _PoliDetailState extends State<PoliDetail> {
                   stream: getData(),
                   builder: (context, AsyncSnapshot snapshot) => ElevatedButton(
                         onPressed: () async {
-                          await PoliService()
+                          await PegawaiService()
                               .hapus(snapshot.data)
                               .then((value) {
                             Navigator.pop(context);
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const PoliPage()));
+                                    builder: (context) => const PegawaiPage()));
                           });
                         },
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red),
                         child: const Text("YA"),
                       )),
               ElevatedButton(
